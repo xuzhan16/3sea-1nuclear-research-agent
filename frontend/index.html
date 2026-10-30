@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <title>三海一核·智能调研 Agent | 哈尔滨工程大学</title>
+    <meta name="description" content="基于多智能体检索的船海核领域自主调研 Agent：检索公开权威资料、对比多方案、生成带来源的中文研究报告">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="./static/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/site/styles.css" />
+    <style>
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+        }
+
+        .agent-name {
+            text-align: center;
+        }
+
+        .agent-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .agent-choices {
+            display: none;
+        }
+
+        .btn-show {
+            display: none;
+        }
+
+        /* Icon button style for inline buttons */
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .icon-button:hover {
+            background-color: rgba(123, 104, 238, 0.1); /* Placeholder, adjust in styles.css */
+        }
+
+        .icon-button:active {
+        }
+
+        /* Ensure buttons are properly aligned in headings */
+        h2 .icon-button, h2 .expand-button {
+            vertical-align: middle;
+            font-size: 0.8em;
+        }
+        
+        /* New navigation buttons in the top-right corner */
+        .nav-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Buttons (moved from top bar) -->
+    <div class="nav-buttons">
+        <div id="websocketPanelOpenBtn" class="top-websocket-button">
+            <i class="fas fa-network-wired"></i> Status
+        </div>
+        <div id="historyPanelOpenBtn" class="top-history-button">
+            <i class="fas fa-history"></i> History
+        </div>
+    </div>
+
+    <!-- WebSocket Status Panel -->
+    <div class="websocket-panel" id="websocketPanel">
+        <div class="websocket-panel-header">
+            <h3><i class="fas fa-plug"></i> Connection Status</h3>
+            <div class="websocket-panel-actions">
+                <button id="websocketPanelToggle" class="websocket-action-btn" title="Close panel">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+        </div>
+        <div class="websocket-status">
+            <div class="status-item">
+                <span class="status-label">Connection:</span>
+                <span class="status-value" id="connectionStatus">Disconnected</span>
+                <span class="status-indicator" id="connectionIndicator"></span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Research:</span>
+                <span class="status-value" id="researchStatus">Inactive</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Connected for:</span>
+                <span class="status-value" id="connectionDuration">-</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Last activity:</span>
+                <span class="status-value" id="lastActivity">-</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">ReadyState:</span>
+                <span class="status-value" id="readyState">-</span>
+            </div>
+            <div class="status-divider"></div>
+            <div class="status-item">
+                <span class="status-label">Connection attempts:</span>
+                <span class="status-value" id="connectionAttempts">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Messages received:</span>
+                <span class="status-value" id="messagesReceived">0</span>
+            </div>
+            <div class="status-divider"></div>
+            <div class="status-item">
+                <span class="status-label">Current task:</span>
+                <span class="status-value" id="currentTask">-</span>
+            </div>
+        </div>
+    </div>
+
+    <section class="landing">
+        <div class="max-w-5xl mx-auto text-center">
+            <h1 class="text-4xl font-extrabold mx-auto lg:text-7xl">
+                三海一核·智能调研 Agent<br>
+                <span style="background-image:linear-gradient(to right, #9867F0, #ED4E50); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">自主检索 · 对比方案 · 带来源报告</span>
+            </h1>
+            <p class="max-w-6xl mx-auto text-gray-600 mt-8" style="font-size:20px">
+                面向船舶工程、海洋工程与核能应用的自主调研 Agent。输入一个领域问题，自动检索公开权威资料、比较多个方案并生成带来源的中文研究报告。
+            </p>
+            <a href="#form" class="btn btn-primary">开始分析</a>
+        </div>
+    </section>
+
+    <main class="container" id="form">
+        <div class="agent-item"><img src="/static/gptr-logo.png" class="avatar" alt="Auto Agent"></div>
+        <form method="POST" class="mt-3" id="researchForm">
+            <div class="form-group">
+                <label for="task" class="agent-question">你想研究哪个船海核问题，或比较哪些技术/方案？</label>
+                <textarea id="task" name="task" class="form-control highlight-connection" placeholder="例如：比较船用小型模块化反应堆的公开技术路线" required autocomplete="on"></textarea>
+                <input type="radio" name="agent" id="autoAgent" value="Auto Agent" checked hidden>
+            </div>
+            <div class="form-group">
+                <label for="domain" class="agent-question">技术领域</label>
+                <select id="domain" name="domain" class="form-control highlight-connection">
+                    <option value="综合">综合</option>
+                    <option value="船舶工程">船舶工程</option>
+                    <option value="海洋工程">海洋工程</option>
+                    <option value="核能应用">核能应用</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="vesselType" class="agent-question">研究对象·平台类型</label>
+                <input type="text" class="form-control highlight-connection" id="vesselType" placeholder="例如：商船、半潜式平台、船用小型模块化反应堆">
+            </div>
+            <div class="form-group">
+                <label for="region" class="agent-question">规范/法规区域</label>
+                <input type="text" class="form-control highlight-connection" id="region" placeholder="例如：中国与国际规则">
+            </div>
+            <div class="form-group">
+                <label for="focus" class="agent-question">分析重点</label>
+                <input type="text" class="form-control highlight-connection" id="focus" placeholder="例如：安全、法规、维护">
+            </div>
+            <div class="form-group">
+                <div class="row">
+
+
+                </div>
+                <button type="button" id="btnShowAuto" class="btn btn-secondary mt-3 btn-show">Auto Agent</button>
+            </div>
+            <div class="form-group">
+                <label for="report_type" class="agent-question">分析深度</label>
+                <select name="report_type" id="report_type" class="form-control highlight-connection" required>
+                    <option value="research_report">快速综述</option>
+                    <option value="detailed_report">深入分析</option>
+                    <option value="resource_report">来源清单</option>
+                    <option value="deep">深度调研</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tone" class="agent-question">报告表达方式</label>
+                <select name="tone" id="tone" class="form-control highlight-connection" required>
+                    <option value="Objective">客观 - 平衡呈现事实和证据</option>
+                    <option value="Formal">正式 - 采用规范、严谨的报告表达</option>
+                    <option value="Analytical">分析 - 重点解释差异、证据和取舍</option>
+                    <option value="Persuasive">说服 - 强调某一结论的论据</option>
+                    <option value="Informative">信息 - 清晰汇总相关信息</option>
+                    <option value="Explanatory">解释 - 说明复杂概念或参数</option>
+                    <option value="Descriptive">描述 - 详细呈现技术特点</option>
+                    <option value="Critical">审慎 - 检查结论和信息可靠性</option>
+                    <option value="Comparative">比较 - 突出选项间异同</option>
+                    <option value="Speculative">推测 - 探讨潜在影响并标明不确定性</option>
+                    <option value="Reflective">反思 - 总结分析过程和局限</option>
+                    <option value="Narrative">叙述 - 以连贯方式组织分析</option>
+                    <option value="Humorous">轻松 - 使用轻松易懂的表达</option>
+                    <option value="Optimistic">积极 - 侧重潜在优势</option>
+                    <option value="Pessimistic">谨慎 - 侧重风险与限制</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="report_source" class="agent-question">信息来源</label>
+                <p class="text-left mt-0 pt-0" style="font-size: 0.7rem;">默认检索公开权威资料（监管机构/船级社/论文/官方文档）；也可结合本地资料。</p>
+                <select name="report_source" id="report_source" class="form-control highlight-connection" required>
+                    <option value="web">公开网页</option>
+                    <option value="local">本地资料</option>
+                    <option value="hybrid">网页和本地资料</option>
+                    <option value="azure">Azure 存储</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="maxSearchResults" class="agent-question">每个问题最多参考多少个来源？</label>
+                <input type="number" class="form-control highlight-connection" id="maxSearchResults" name="max_search_results" min="1" max="20" value="5">
+                <small class="text-muted">来源越多，分析越全面，但耗时也会增加。</small>
+            </div>
+            <div class="form-group">
+                <label for="queryDomains" class="form-label">优先参考的网站（可选）</label>
+                <input type="text" class="form-control highlight-connection" id="queryDomains" name="query_domains" placeholder="用逗号分隔，例如：jd.com, amazon.com" autocomplete="on">
+                <small class="text-muted">留空则由 Agent 自行选择公开来源。</small>
+            </div>
+
+            <!-- MCP Configuration Section -->
+            <div class="form-group">
+                <div class="mcp-section">
+                    <div class="mcp-header">
+                        <label for="mcpEnabled" class="form-label">
+                            <input type="checkbox" id="mcpEnabled" name="mcp_enabled" class="mcp-toggle">
+                            Enable MCP (Model Context Protocol)
+                        </label>
+                        <button type="button" id="mcpInfoBtn" class="mcp-info-btn" title="Learn about MCP">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">Connect to external tools and data sources through MCP servers</small>
+                    
+                    <div id="mcpConfigSection" class="mcp-config-section" style="display: none;">
+                        <div class="mcp-presets">
+                            <label class="form-label">Quick Presets</label>
+                            <div class="preset-buttons">
+                                <button type="button" class="btn btn-outline-secondary btn-sm preset-btn" data-preset="github">
+                                    <i class="fab fa-github"></i> GitHub
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm preset-btn" data-preset="tavily">
+                                    <i class="fas fa-search"></i> Tavily Web Search
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm preset-btn" data-preset="filesystem">
+                                    <i class="fas fa-folder"></i> Local Files
+                                </button>
+                            </div>
+                            <small class="text-muted">Click a preset to add pre-configured MCP servers to the JSON below</small>
+                        </div>
+
+                        <div class="mcp-config-group">
+                            <label for="mcpConfig" class="form-label">MCP Servers Configuration</label>
+                            <textarea id="mcpConfig" name="mcp_config" class="form-control mcp-config-textarea" rows="8" placeholder="Paste your MCP servers configuration as JSON array...">[]</textarea>
+                            <div class="mcp-config-status">
+                                <span id="mcpConfigStatus" class="mcp-status-text">Valid JSON ✓</span>
+                                <button type="button" id="mcpFormatBtn" class="btn btn-sm btn-secondary">
+                                    <i class="fas fa-code"></i> Format JSON
+                                </button>
+                            </div>
+                            <small class="text-muted">
+                                Paste your MCP servers configuration as a JSON array. Each server should have properties like 
+                                <code>name</code>, <code>command</code>, <code>args</code>, and optional <code>env</code> variables.
+                                <a href="#" id="mcpExampleLink">See example →</a>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <input type="submit" value="开始船海核分析" class="btn btn-primary button-padding" id="submitButton">
+        </form>
+
+        <!-- Add JSON button above Research Progress section -->
+        <div class="margin-div" id="jsonButtonContainer" style="display: none; text-align: right; margin-bottom: 10px;">
+            <a id="downloadLinkJsonTop" href="#" class="report-action-btn disabled" target="_blank" rel="noopener noreferrer">
+                <i class="fas fa-file-code"></i> JSON
+            </a>
+        </div>
+
+        <div class="margin-div research-output-container">
+            <!-- Move spinner to the left side of the text -->
+            <h2><div id="modernSpinner" class="modern-spinner"></div> 分析进度 <button id="expandOutputBtn" class="expand-button" title="Expand"><i class="fas fa-expand-alt"></i></button></h2>
+            <p class="mt-2 text-left" style="font-size: 0.8rem;">
+                查看 Agent 如何检索来源、整理证据并形成研究报告。</p>
+            <div id="output"></div>
+        </div>
+        <div class="images_div">
+            <div id="selectedImagesContainer" style="display: none;"></div>
+        </div>
+        <div class="margin-div report-container">
+            <h2>船海核研究报告
+                <button id="copyToClipboardTop" class="icon-button" title="Copy" style="display: none;">
+                    <i class="fas fa-copy"></i>
+                </button>
+                <button id="expandReportBtn" class="expand-button" title="Expand">
+                    <i class="fas fa-expand-alt"></i>
+                </button>
+            </h2>
+            <!-- Add download buttons above the report container -->
+            <div class="report-actions" style="display: none;">
+                <a id="downloadLinkTop" href="#" class="report-action-btn disabled" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </a>
+                <a id="downloadLinkWordTop" href="#" class="report-action-btn disabled" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-file-word"></i> Word
+                </a>
+                <a id="downloadLinkMdTop" href="#" class="report-action-btn disabled" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-file-lines"></i> Markdown
+                </a>
+            </div>
+            <div id="reportContainer"></div>
+            <div id="reportActions" style="display: none;">
+                <div class="alert alert-info" role="alert" id="status"></div>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="margin-div chat-container" id="chatContainer" style="display: none;">
+            <h2><i class="fas fa-comments"></i> 继续追问这份报告 <button id="expandChatBtn" class="expand-button" title="Expand"><i class="fas fa-expand-alt"></i></button></h2>
+            <p class="text-muted">可以继续询问某个方案、来源或结论。</p>
+            <div id="chatMessages" class="chat-messages"></div>
+            <div class="chat-input-container">
+                <textarea id="chatInput" class="form-control chat-input" placeholder="例如：如果我更看重安全规范，结论会变化吗？" rows="2"></textarea>
+                <button id="voiceInputBtn" class="btn btn-secondary" title="Use voice input">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button id="sendChatBtn" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </div>
+        </div>
+
+        <!-- Fixed bottom bar styled like the top credits bar -->
+    </main>
+
+    <!-- Conversation History Panel -->
+    <div class="history-panel" id="historyPanel">
+        <div class="history-panel-header">
+            <h3><i class="fas fa-history"></i> Research History</h3>
+            <div class="history-panel-actions">
+                <button id="historyPanelToggle" class="history-action-btn" title="Close panel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="history-panel-search">
+            <input type="text" id="historySearch" placeholder="Search research history...">
+            <button id="historySearchBtn" class="history-action-btn" title="Search">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <div class="history-panel-filters">
+            <select id="historySortOrder">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+            </select>
+            <!-- JS will add Import/Export/Debug buttons here -->
+            <button id="historyClearBtn" class="history-action-btn" title="Clear all history">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+        <div class="history-panel-entries" id="historyEntries">
+            <!-- Entries will be populated dynamically -->
+        </div>
+    </div>
+    
+    <!-- Sticky Downloads Bar -->
+    <div class="sticky-downloads-bar" id="stickyDownloadsBar" style="display: none;"> <!-- Initially hidden -->
+        <div class="download-buttons-container">
+            <a id="copyToClipboard" class="download-option-btn disabled">
+                <i class="fas fa-copy"></i> Copy (Markdown)
+            </a>
+            <a id="downloadLinkMd" href="#" class="download-option-btn disabled" target="_blank" rel="noopener noreferrer">
+                <i class="fas fa-file-lines"></i> Markdown
+            </a>
+            <a id="downloadLink" href="#" class="download-option-btn disabled" target="_blank" rel="noopener noreferrer">
+                <i class="fas fa-file-pdf"></i> PDF
+            </a>
+            <a id="downloadLinkWord" href="#" class="download-option-btn disabled" target="_blank" rel="noopener noreferrer">
+                <i class="fas fa-file-word"></i> Word
+            </a>
+            <a id="downloadLinkJson" href="#" class="download-option-btn disabled" target="_blank" rel="noopener noreferrer">
+                <i class="fas fa-file-code"></i> Log (JSON)
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <p>三海一核·智能调研 Agent &copy; 2026 · 哈尔滨工程大学</p>
+        <p>基于 <a target="_blank" href="https://github.com/assafelovic/gpt-researcher">GPT Researcher</a>（MIT）构建</p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
+    <script src="/site/scripts.js"></script>
+    <script>
+        // Auto-resize textarea as content grows
+        const taskTextarea = document.getElementById('task');
+        if (taskTextarea) {
+            // Set initial height
+            taskTextarea.setAttribute('style', 'height: 38px; overflow-y: hidden;');
+
+            // Function to resize textarea based on content
+            const resizeTextarea = () => {
+                taskTextarea.style.height = 'auto';
+                taskTextarea.style.height = taskTextarea.scrollHeight + 'px';
+            };
+
+            // Add event listeners for input and focus
+            taskTextarea.addEventListener('input', resizeTextarea);
+            taskTextarea.addEventListener('focus', resizeTextarea);
+        }
+
+        // Ensure feature panels are positioned correctly on window resize
+        window.addEventListener('resize', function () {
+            // Adjust the feature panel width based on screen size
+            const viewportWidth = window.innerWidth;
+            const featurePanel = document.querySelector('.feature-panel');
+
+            if (featurePanel) {
+                if (viewportWidth < 1400) {
+                    featurePanel.style.display = 'none';
+                } else {
+                    featurePanel.style.display = 'block';
+                    // Adjust width based on screen size
+                    const panelWidth = Math.min(280, Math.max(200, viewportWidth * 0.15));
+                    featurePanel.style.width = `${panelWidth}px`;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
