@@ -253,6 +253,8 @@ not universally supported and will return empty results on many search backends.
 
 Assume the current date is {datetime.now(timezone.utc).strftime('%B %d, %Y')} if required.
 
+If the task is written in Chinese, generate all search queries in English — English queries return far better web search results. The final report language is decided separately.
+
 {context_prompt}
 You must respond with a list of strings in the following format: [{dynamic_example}].
 The response should contain ONLY the list.

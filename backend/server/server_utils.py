@@ -17,7 +17,7 @@ import logging
 import hashlib
 
 from .multi_agent_runner import run_multi_agent_task
-from .maritime_nuclear import build_maritime_nuclear_task
+from .maritime_nuclear import build_maritime_nuclear_task, build_maritime_nuclear_role
 
 # Import chat agent
 try:
@@ -149,8 +149,18 @@ async def handle_start_command(websocket, data: str, manager):
         print("Error: Missing task or report_type")
         return
 
+    # 搜索/研究任务用简洁文本（避免把角色规则长文当作搜索词），
+    # 分析师角色与安全规则通过 AGENT_ROLE 注入报告生成环节
+    raw_task = task
     task = build_maritime_nuclear_task(
-        task,
+        raw_task,
+        domain=domain,
+        vessel_type=vessel_type,
+        region=regulatory_region,
+        focus=analysis_focus,
+    )
+    os.environ["AGENT_ROLE"] = build_maritime_nuclear_role(
+        raw_task,
         domain=domain,
         vessel_type=vessel_type,
         region=regulatory_region,

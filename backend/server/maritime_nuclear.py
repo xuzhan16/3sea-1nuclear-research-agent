@@ -8,23 +8,45 @@ def build_maritime_nuclear_task(
     region: str = "",
     focus: str = "",
 ) -> str:
+    """构建可搜索的研究任务文本（简洁，不含分析师规则，避免规则长文被当作搜索词）。"""
     query = (query or "").strip()
-    domain = (domain or "").strip()
-    vessel_type = (vessel_type or "").strip()
-    region = (region or "").strip()
-    focus = (focus or "").strip()
+    if not query:
+        raise ValueError("Please describe the ship, ocean or nuclear research question.")
+
+    parts = [query]
+    for label, value in (
+        ("技术领域", domain),
+        ("研究对象", vessel_type),
+        ("规范区域", region),
+        ("分析重点", focus),
+    ):
+        value = (value or "").strip()
+        if value:
+            parts.append(f"{label}：{value}")
+    return "；".join(parts)
+
+
+def build_maritime_nuclear_role(
+    query: str,
+    domain: str = "",
+    vessel_type: str = "",
+    region: str = "",
+    focus: str = "",
+) -> str:
+    """构建分析师角色提示（注入报告生成环节，包含引用与安全规则）。"""
+    query = (query or "").strip()
     if not query:
         raise ValueError("Please describe the ship, ocean or nuclear research question.")
 
     details = [f"Research question: {query}"]
-    if domain:
-        details.append(f"Technology domain: {domain}")
-    if vessel_type:
-        details.append(f"Vessel or facility type: {vessel_type}")
-    if region:
-        details.append(f"Regulatory region: {region}")
-    if focus:
-        details.append(f"Analysis focus: {focus}")
+    if (domain or "").strip():
+        details.append(f"Technology domain: {domain.strip()}")
+    if (vessel_type or "").strip():
+        details.append(f"Vessel or facility type: {vessel_type.strip()}")
+    if (region or "").strip():
+        details.append(f"Regulatory region: {region.strip()}")
+    if (focus or "").strip():
+        details.append(f"Analysis focus: {focus.strip()}")
 
     return """Act as a cautious ship, ocean and nuclear (船海核) engineering research analyst. Research the user's question using current, authoritative public sources.
 
@@ -41,4 +63,3 @@ Research and reporting requirements:
 7. Do not provide instructions for operating, modifying, disabling, or bypassing nuclear safety systems. Flag items requiring qualified professional review.
 8. Write in Simplified Chinese unless the user explicitly requests another language.
 """
-

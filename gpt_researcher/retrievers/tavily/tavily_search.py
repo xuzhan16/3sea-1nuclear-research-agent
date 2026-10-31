@@ -59,7 +59,7 @@ class TavilySearch:
         query: str,
         search_depth: Literal["basic", "advanced"] = "basic",
         topic: str = "general",
-        days: int = 2,
+        days: int = None,
         max_results: int = 10,
         include_domains: Sequence[str] = None,
         exclude_domains: Sequence[str] = None,
@@ -76,7 +76,6 @@ class TavilySearch:
             "query": query,
             "search_depth": search_depth,
             "topic": topic,
-            "days": days,
             "include_answer": include_answer,
             "include_raw_content": include_raw_content,
             "max_results": max_results,
@@ -86,6 +85,9 @@ class TavilySearch:
             "api_key": self.api_key,
             "use_cache": use_cache,
         }
+        # 仅当显式指定天数时才限制时间范围（默认不限时间，避免学术/技术话题近 2 天无结果）
+        if days is not None:
+            data["days"] = days
 
         response = requests.post(
             self.base_url, data=json.dumps(data), headers=self.headers, timeout=100
