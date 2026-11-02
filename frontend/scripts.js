@@ -117,12 +117,14 @@ const GPTResearcher = (() => {
       historyPanelOpenBtn.addEventListener('click', () => {
         loadConversationHistory(); // Reload history when opening panel
         historyPanel.classList.add('open');
+        historyPanelOpenBtn.setAttribute('aria-expanded', 'true');
       });
     }
 
     if (historyPanelToggle) {
       historyPanelToggle.addEventListener('click', () => {
         historyPanel.classList.remove('open');
+        historyPanelOpenBtn?.setAttribute('aria-expanded', 'false');
       });
     }
 
@@ -134,6 +136,7 @@ const GPTResearcher = (() => {
         e.target !== historyPanelOpenBtn &&
         !historyPanelOpenBtn.contains(e.target)) {
         historyPanel.classList.remove('open');
+        historyPanelOpenBtn?.setAttribute('aria-expanded', 'false');
       }
     });
 
@@ -232,6 +235,7 @@ const GPTResearcher = (() => {
       e.stopPropagation();
       console.log("Opening WebSocket panel");
       websocketPanel.classList.add('open');
+      websocketPanelOpenBtn.setAttribute('aria-expanded', 'true');
     });
 
     websocketPanelToggle.addEventListener('click', (e) => {
@@ -239,6 +243,7 @@ const GPTResearcher = (() => {
       e.stopPropagation();
       console.log("Closing WebSocket panel");
       websocketPanel.classList.remove('open');
+      websocketPanelOpenBtn.setAttribute('aria-expanded', 'false');
     });
 
     // Close panel when clicking outside
@@ -249,6 +254,7 @@ const GPTResearcher = (() => {
         e.target !== websocketPanelOpenBtn &&
         !websocketPanelOpenBtn.contains(e.target)) {
         websocketPanel.classList.remove('open');
+        websocketPanelOpenBtn.setAttribute('aria-expanded', 'false');
       }
     });
 
@@ -297,7 +303,7 @@ const GPTResearcher = (() => {
 
     // Update research status
     if (researchStatusEl) {
-      researchStatusEl.textContent = isResearchActive ? 'Active' : 'Inactive';
+      researchStatusEl.textContent = isResearchActive ? '进行中' : '未开始';
     }
 
     // Update connection duration
@@ -1195,6 +1201,8 @@ const GPTResearcher = (() => {
     var status = ''
     switch (state) {
       case 'in_progress':
+        document.querySelector('.research-output-container')?.classList.remove('is-empty');
+        document.querySelector('.report-container')?.classList.remove('is-empty');
         status = 'Research in progress...'
         setReportActionsStatus('disabled')
         isResearchActive = true;
@@ -1217,6 +1225,8 @@ const GPTResearcher = (() => {
         }
         break
       case 'finished':
+        document.querySelector('.research-output-container')?.classList.remove('is-empty');
+        document.querySelector('.report-container')?.classList.remove('is-empty');
         status = 'Research finished!'
         setReportActionsStatus('enabled')
         isResearchActive = false;
@@ -1254,6 +1264,8 @@ const GPTResearcher = (() => {
         }
         break
       case 'error':
+        document.querySelector('.research-output-container')?.classList.remove('is-empty');
+        document.querySelector('.report-container')?.classList.remove('is-empty');
         status = 'Research failed!'
         setReportActionsStatus('disabled')
         isResearchActive = false;
@@ -1264,6 +1276,8 @@ const GPTResearcher = (() => {
         status = ''
         setReportActionsStatus('hidden')
         isResearchActive = false;
+        document.querySelector('.research-output-container')?.classList.add('is-empty');
+        document.querySelector('.report-container')?.classList.add('is-empty');
         // Make sure the research icon is not spinning initially
         updateResearchIcon(false);
         // Hide the copy button in the header

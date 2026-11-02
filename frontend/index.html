@@ -5,7 +5,7 @@
     <title>三海一核·智能调研 Agent | 哈尔滨工程大学</title>
     <meta name="description" content="基于多智能体检索的船海核领域自主调研 Agent：检索公开权威资料、对比多方案、生成带来源的中文研究报告">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="./static/favicon.ico">
+    <link rel="icon" href="./static/heu-logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
@@ -14,9 +14,9 @@
     <link rel="stylesheet" href="/site/styles.css" />
     <style>
         .avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
+            height: 44px;
+            width: auto;
+            border-radius: 0;
         }
 
         .agent-name {
@@ -49,7 +49,7 @@
         }
 
         .icon-button:hover {
-            background-color: rgba(123, 104, 238, 0.1); /* Placeholder, adjust in styles.css */
+            background-color: rgba(3, 81, 165, 0.08);
         }
 
         .icon-button:active {
@@ -76,18 +76,18 @@
 <body>
     <!-- Navigation Buttons (moved from top bar) -->
     <div class="nav-buttons">
-        <div id="websocketPanelOpenBtn" class="top-websocket-button">
-            <i class="fas fa-network-wired"></i> Status
-        </div>
-        <div id="historyPanelOpenBtn" class="top-history-button">
-            <i class="fas fa-history"></i> History
-        </div>
+        <button type="button" id="websocketPanelOpenBtn" class="top-websocket-button" aria-label="查看连接状态" aria-controls="websocketPanel" aria-expanded="false">
+            <i class="fas fa-network-wired" aria-hidden="true"></i> 状态
+        </button>
+        <button type="button" id="historyPanelOpenBtn" class="top-history-button" aria-label="查看调研历史" aria-controls="historyPanel" aria-expanded="false">
+            <i class="fas fa-history" aria-hidden="true"></i> 历史
+        </button>
     </div>
 
     <!-- WebSocket Status Panel -->
     <div class="websocket-panel" id="websocketPanel">
         <div class="websocket-panel-header">
-            <h3><i class="fas fa-plug"></i> Connection Status</h3>
+            <h3><i class="fas fa-plug"></i> 连接状态</h3>
             <div class="websocket-panel-actions">
                 <button id="websocketPanelToggle" class="websocket-action-btn" title="Close panel">
                     <i class="fas fa-chevron-left"></i>
@@ -96,38 +96,38 @@
         </div>
         <div class="websocket-status">
             <div class="status-item">
-                <span class="status-label">Connection:</span>
-                <span class="status-value" id="connectionStatus">Disconnected</span>
+                <span class="status-label">连接：</span>
+                <span class="status-value" id="connectionStatus">未连接</span>
                 <span class="status-indicator" id="connectionIndicator"></span>
             </div>
             <div class="status-item">
-                <span class="status-label">Research:</span>
-                <span class="status-value" id="researchStatus">Inactive</span>
+                <span class="status-label">调研任务：</span>
+                <span class="status-value" id="researchStatus">未开始</span>
             </div>
             <div class="status-item">
-                <span class="status-label">Connected for:</span>
+                <span class="status-label">已连接时长：</span>
                 <span class="status-value" id="connectionDuration">-</span>
             </div>
             <div class="status-item">
-                <span class="status-label">Last activity:</span>
+                <span class="status-label">最近活动：</span>
                 <span class="status-value" id="lastActivity">-</span>
             </div>
             <div class="status-item">
-                <span class="status-label">ReadyState:</span>
+                <span class="status-label">连接状态码：</span>
                 <span class="status-value" id="readyState">-</span>
             </div>
             <div class="status-divider"></div>
             <div class="status-item">
-                <span class="status-label">Connection attempts:</span>
+                <span class="status-label">连接尝试次数：</span>
                 <span class="status-value" id="connectionAttempts">0</span>
             </div>
             <div class="status-item">
-                <span class="status-label">Messages received:</span>
+                <span class="status-label">已接收消息：</span>
                 <span class="status-value" id="messagesReceived">0</span>
             </div>
             <div class="status-divider"></div>
             <div class="status-item">
-                <span class="status-label">Current task:</span>
+                <span class="status-label">当前任务：</span>
                 <span class="status-value" id="currentTask">-</span>
             </div>
         </div>
@@ -135,19 +135,22 @@
 
     <section class="landing">
         <div class="max-w-5xl mx-auto text-center">
+            <div class="brand-mark">
+                <img src="/static/heu-logo.png" class="brand-logo" alt="">
+                <span>哈尔滨工程大学</span>
+            </div>
             <h1 class="text-4xl font-extrabold mx-auto lg:text-7xl">
                 三海一核·智能调研 Agent<br>
-                <span style="background-image:linear-gradient(to right, #9867F0, #ED4E50); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">自主检索 · 对比方案 · 带来源报告</span>
+                <span style="background-image:linear-gradient(to right, #0351a5, #0a7bd1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">自主检索 · 对比方案 · 带来源报告</span>
             </h1>
             <p class="max-w-6xl mx-auto text-gray-600 mt-8" style="font-size:20px">
                 面向船舶工程、海洋工程与核能应用的自主调研 Agent。输入一个领域问题，自动检索公开权威资料、比较多个方案并生成带来源的中文研究报告。
             </p>
-            <a href="#form" class="btn btn-primary">开始分析</a>
+            <a href="#form" class="btn btn-primary">填写研究问题</a>
         </div>
     </section>
 
     <main class="container" id="form">
-        <div class="agent-item"><img src="/static/gptr-logo.png" class="avatar" alt="Auto Agent"></div>
         <form method="POST" class="mt-3" id="researchForm">
             <div class="form-group">
                 <label for="task" class="agent-question">你想研究哪个船海核问题，或比较哪些技术/方案？</label>
@@ -163,18 +166,26 @@
                     <option value="核能应用">核能应用</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label for="vesselType" class="agent-question">研究对象·平台类型</label>
-                <input type="text" class="form-control highlight-connection" id="vesselType" placeholder="例如：商船、半潜式平台、船用小型模块化反应堆">
-            </div>
-            <div class="form-group">
-                <label for="region" class="agent-question">规范/法规区域</label>
-                <input type="text" class="form-control highlight-connection" id="region" placeholder="例如：中国与国际规则">
-            </div>
-            <div class="form-group">
-                <label for="focus" class="agent-question">分析重点</label>
-                <input type="text" class="form-control highlight-connection" id="focus" placeholder="例如：安全、法规、维护">
-            </div>
+            <details class="advanced-settings">
+                <summary>限定研究范围 <span>可选：对象、法规区域与分析重点</span></summary>
+                <div class="advanced-settings-content">
+                    <div class="form-group">
+                        <label for="vesselType" class="agent-question">研究对象或平台类型</label>
+                        <input type="text" class="form-control highlight-connection" id="vesselType" placeholder="例如：商船、半潜式平台、船用小型模块化反应堆">
+                    </div>
+                    <div class="form-group">
+                        <label for="region" class="agent-question">规范或法规区域</label>
+                        <input type="text" class="form-control highlight-connection" id="region" placeholder="例如：中国与国际规则">
+                    </div>
+                    <div class="form-group">
+                        <label for="focus" class="agent-question">分析重点</label>
+                        <input type="text" class="form-control highlight-connection" id="focus" placeholder="例如：安全、法规、维护">
+                    </div>
+                </div>
+            </details>
+            <details class="advanced-settings">
+                <summary>更多报告选项 <span>表达方式、来源数量与优先网站</span></summary>
+                <div class="advanced-settings-content">
             <div class="form-group">
                 <div class="row">
 
@@ -231,6 +242,8 @@
                 <input type="text" class="form-control highlight-connection" id="queryDomains" name="query_domains" placeholder="用逗号分隔，例如：jd.com, amazon.com" autocomplete="on">
                 <small class="text-muted">留空则由 Agent 自行选择公开来源。</small>
             </div>
+                </div>
+            </details>
 
             <!-- MCP Configuration Section -->
             <div class="form-group">
@@ -238,44 +251,44 @@
                     <div class="mcp-header">
                         <label for="mcpEnabled" class="form-label">
                             <input type="checkbox" id="mcpEnabled" name="mcp_enabled" class="mcp-toggle">
-                            Enable MCP (Model Context Protocol)
+                            启用 MCP（模型上下文协议）
                         </label>
-                        <button type="button" id="mcpInfoBtn" class="mcp-info-btn" title="Learn about MCP">
+                        <button type="button" id="mcpInfoBtn" class="mcp-info-btn" title="了解 MCP" aria-label="了解 MCP">
                             <i class="fas fa-info-circle"></i>
                         </button>
                     </div>
-                    <small class="text-muted">Connect to external tools and data sources through MCP servers</small>
+                    <small class="text-muted">通过 MCP 服务连接外部工具与数据源</small>
                     
                     <div id="mcpConfigSection" class="mcp-config-section" style="display: none;">
                         <div class="mcp-presets">
-                            <label class="form-label">Quick Presets</label>
+                            <label class="form-label">快速配置</label>
                             <div class="preset-buttons">
                                 <button type="button" class="btn btn-outline-secondary btn-sm preset-btn" data-preset="github">
                                     <i class="fab fa-github"></i> GitHub
                                 </button>
                                 <button type="button" class="btn btn-outline-secondary btn-sm preset-btn" data-preset="tavily">
-                                    <i class="fas fa-search"></i> Tavily Web Search
+                                    <i class="fas fa-search"></i> Tavily 网页搜索
                                 </button>
                                 <button type="button" class="btn btn-outline-secondary btn-sm preset-btn" data-preset="filesystem">
-                                    <i class="fas fa-folder"></i> Local Files
+                                    <i class="fas fa-folder"></i> 本地文件
                                 </button>
                             </div>
-                            <small class="text-muted">Click a preset to add pre-configured MCP servers to the JSON below</small>
+                            <small class="text-muted">选择预设可将 MCP 服务配置填入下方 JSON。</small>
                         </div>
 
                         <div class="mcp-config-group">
-                            <label for="mcpConfig" class="form-label">MCP Servers Configuration</label>
+                            <label for="mcpConfig" class="form-label">MCP 服务配置</label>
                             <textarea id="mcpConfig" name="mcp_config" class="form-control mcp-config-textarea" rows="8" placeholder="Paste your MCP servers configuration as JSON array...">[]</textarea>
                             <div class="mcp-config-status">
                                 <span id="mcpConfigStatus" class="mcp-status-text">Valid JSON ✓</span>
                                 <button type="button" id="mcpFormatBtn" class="btn btn-sm btn-secondary">
-                                    <i class="fas fa-code"></i> Format JSON
+                                    <i class="fas fa-code"></i> 格式化 JSON
                                 </button>
                             </div>
                             <small class="text-muted">
-                                Paste your MCP servers configuration as a JSON array. Each server should have properties like 
+                                请粘贴 MCP 服务 JSON 数组。每个服务可包含
                                 <code>name</code>, <code>command</code>, <code>args</code>, and optional <code>env</code> variables.
-                                <a href="#" id="mcpExampleLink">See example →</a>
+                                <a href="#" id="mcpExampleLink">查看示例 →</a>
                             </small>
                         </div>
                     </div>
@@ -294,9 +307,10 @@
 
         <div class="margin-div research-output-container">
             <!-- Move spinner to the left side of the text -->
-            <h2><div id="modernSpinner" class="modern-spinner"></div> 分析进度 <button id="expandOutputBtn" class="expand-button" title="Expand"><i class="fas fa-expand-alt"></i></button></h2>
+            <h2><div id="modernSpinner" class="modern-spinner"></div> 分析进度 <button id="expandOutputBtn" class="expand-button" title="展开分析进度" aria-label="展开分析进度"><i class="fas fa-expand-alt"></i></button></h2>
             <p class="mt-2 text-left" style="font-size: 0.8rem;">
                 查看 Agent 如何检索来源、整理证据并形成研究报告。</p>
+            <div id="outputEmptyState" class="result-empty-state">提交研究问题后，这里会显示检索与分析进度。</div>
             <div id="output"></div>
         </div>
         <div class="images_div">
@@ -304,10 +318,10 @@
         </div>
         <div class="margin-div report-container">
             <h2>船海核研究报告
-                <button id="copyToClipboardTop" class="icon-button" title="Copy" style="display: none;">
+                <button id="copyToClipboardTop" class="icon-button" title="复制报告" aria-label="复制报告" style="display: none;">
                     <i class="fas fa-copy"></i>
                 </button>
-                <button id="expandReportBtn" class="expand-button" title="Expand">
+                <button id="expandReportBtn" class="expand-button" title="展开研究报告" aria-label="展开研究报告">
                     <i class="fas fa-expand-alt"></i>
                 </button>
             </h2>
@@ -323,6 +337,7 @@
                     <i class="fas fa-file-lines"></i> Markdown
                 </a>
             </div>
+            <div id="reportEmptyState" class="result-empty-state">研究报告将在分析完成后显示。</div>
             <div id="reportContainer"></div>
             <div id="reportActions" style="display: none;">
                 <div class="alert alert-info" role="alert" id="status"></div>
@@ -337,10 +352,10 @@
             <div class="chat-input-container">
                 <textarea id="chatInput" class="form-control chat-input" placeholder="例如：如果我更看重安全规范，结论会变化吗？" rows="2"></textarea>
                 <button id="voiceInputBtn" class="btn btn-secondary" title="Use voice input">
-                    <i class="fas fa-microphone"></i>
+                    <i class="fas fa-microphone"></i><span class="sr-only">语音输入</span>
                 </button>
                 <button id="sendChatBtn" class="btn btn-primary">
-                    <i class="fas fa-paper-plane"></i> Send
+                    <i class="fas fa-paper-plane"></i> 发送追问
                 </button>
             </div>
         </div>
@@ -351,26 +366,26 @@
     <!-- Conversation History Panel -->
     <div class="history-panel" id="historyPanel">
         <div class="history-panel-header">
-            <h3><i class="fas fa-history"></i> Research History</h3>
+            <h3><i class="fas fa-history"></i> 调研历史</h3>
             <div class="history-panel-actions">
-                <button id="historyPanelToggle" class="history-action-btn" title="Close panel">
+                <button id="historyPanelToggle" class="history-action-btn" title="关闭调研历史" aria-label="关闭调研历史">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         </div>
         <div class="history-panel-search">
-            <input type="text" id="historySearch" placeholder="Search research history...">
-            <button id="historySearchBtn" class="history-action-btn" title="Search">
+            <input type="text" id="historySearch" placeholder="搜索调研记录" aria-label="搜索调研记录">
+            <button id="historySearchBtn" class="history-action-btn" title="搜索" aria-label="搜索">
                 <i class="fas fa-search"></i>
             </button>
         </div>
         <div class="history-panel-filters">
             <select id="historySortOrder">
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
+                <option value="newest">最新优先</option>
+                <option value="oldest">最早优先</option>
             </select>
             <!-- JS will add Import/Export/Debug buttons here -->
-            <button id="historyClearBtn" class="history-action-btn" title="Clear all history">
+            <button id="historyClearBtn" class="history-action-btn" title="清空全部历史" aria-label="清空全部历史">
                 <i class="fas fa-trash-alt"></i>
             </button>
         </div>
